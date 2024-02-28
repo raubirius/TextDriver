@@ -1,0 +1,112 @@
+
+Methods and Functionality:
+
+  ✗ let the findToken uses binary search (like whereToPut) – we do not know
+    the exact length of next token
+
+  ✗ try to rebuild the definition and scripting languages so that they will
+    distinguish commands for (avatar, ) items and locations – it would take
+    too much reprogramming:
+      ∙ the methods replaceProperties and setProperty are not ready;
+      ∙ the keywords src, tgt, rsc are too universal;
+      ∙ and much more.
+
+  –(?) default About item
+
+  ✓ create long-term storage for default values of properties: storeState,
+    resetState, writeState, readState
+  ✓ save current path and save filename to configuration
+  ✓ allow to define aliases (note [sk]: dajú sa pomocou nich simulovať
+    skloňovacie pády)
+    ✓ show duplicates as warnings (do not stop parsing)
+  ✓ redirect keyboard hits from central text area to command line and give
+    focus to command line after doing that
+  ✓ clear menu and restore original menu items
+  ✓ custom context menu for routines – in this case the trigger will change
+    the meaning and will be send as list of parameters to routine’s “on
+    invoke” handler
+  ✓ customize double click action
+  ✓ custom properties
+    ∙ global variables – replaced by custom properties of triggers
+  ✓ redefine styles (colors, fonts, sizes…)
+
+  ✓ insertItem
+  ✓ removeItem
+  ✓ default walk
+  – default return (find path to visited place)
+  ✓ default pick
+  ✓ default drop
+  ✓ default throw
+  ✓ default insert
+  ✓ default remove
+  ✓ default examine
+  ✓ default use
+
+  ✓ autopopulate
+  ✓ apply visibility into praxis
+  ✗ redefine default tokens: Avatar, src and tgt
+  ✓ configurable commands separator (for command line); default: “,”
+  ✓ use of commands separator
+  ✓ double clicks in lists
+  ✓ handlers for avatar: on (success|failure) (pick|drop… custom action)
+  ✓ visited flag of place – can be used to detect the first visit of place
+  ✓ onExplore place – used to write description
+  ✓ change style before print…
+  ✓ universal context menus for lists – any list may contain location, item
+    or trigger launcher (for example laucher for «level up» action)
+  ✓ replace “pick” context menu item with “drop” menu item when owned by
+    avatar or with “remove” menu item for that items which are placed inside
+    another item
+
+
+Script Commands and Functionality:
+
+  ✓ query
+  ✗ query history?
+
+  ✓ if no parameters
+  ✓ if here «item»
+  ✓ if have «item»
+  ✓ if avatar in «placement»
+  – if [✗any|visible] path «target location»
+  ✓ if «expression»
+
+  ✓ for parameters,
+
+  ✓ for [✗all|visible|hidden|revealed|concealed]
+      {locations|destinations}
+      [{connected|isolated} «target location»]
+
+  ✓ for [✗all|visible|hidden|revealed|concealed]
+      {present items|inventory items|
+      items placed «target location»|
+      items inside «target item»|
+      items}
+
+  – for [✗any|visible] path «target location»
+
+  ✓ add list item commands (“populate”)
+
+  ✓ params («string or expression») «token» «space separated word»
+  ✓ clear lists and ✗input line
+
+  ✓ set xxx->yyy = «expression»
+  ✓ print block «mark»
+      «text»
+    «mark»
+
+  ✓ hide/show item, location, avatar, transition…
+  ✓ insert item, remove item
+  ✓ call trigger, ✗invoke handler
+  ✓ check visibility and visited state
+
+  – play sound ""
+    ∙ Sources:
+      http://stackoverflow.com/questions/6045384/playing-mp3-and-wav-in-java
+      
+
+
+Other Stuff:
+
+  ✓ detailed debugging – all properties changes, all rollbacks
+

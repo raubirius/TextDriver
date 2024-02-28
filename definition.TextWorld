@@ -1,0 +1,375 @@
+; definition.def
+; disable tokenStartsChecking
+
+; set title Pokusný titulok hlavného okna
+set input line label Príkaz:
+set central text label Dej:
+set locations list label Dostupné miesta:
+set items list label Viditeľné objekty:
+set inventory list label Inventár:
+set inserted list label Vložené položky:
+
+; clear title
+; clear input line label
+; clear central text label
+; clear locations list label
+; clear items list label
+; clear inventory list label
+; clear inserted list label
+; clear screen
+
+; disable autopopulate
+; enable autopopulate
+
+; disable autoexplore
+; enable autoexplore
+
+; hide locations list
+; hide items list
+; hide inventory list
+; hide inserted list
+
+; show locations list
+; show items list
+; show inventory list
+; show inserted list
+
+; clear main menu
+
+
+; menu item Spúšťač 1
+; 	mnemonic VK_O
+; 	trigger trig_1
+; end
+; 
+; menu item  	xPeriment 
+; 	mnemonic VK_P
+; 	icon default-icon-small.png
+; 	trigger xPeriment peňaženka (1 + 1) (stroj na počasie) dvor
+; end
+
+
+; menu separator
+; add default menu item open
+; add default menu item save
+; menu separator
+; add default menu item exit
+
+define walk command choď
+define walk alias command ísť
+define walk operator pomocou
+define return command vráť sa
+define return alias command vrátiť sa
+define return operator pomocou
+define explore command prezri
+define explore alias command prezrieť
+define explore operator pomocou
+define pick command zober
+define pick alias command zobrať
+define pick operator pomocou
+define drop command polož
+define drop alias command položiť
+define drop operator pomocou
+define throw command hoď
+define throw alias command hodiť
+define throw operator do
+define throw alias operator na
+define insert command vlož
+define insert alias command vložiť
+define insert operator do
+define remove command vyber
+define remove alias command vybrať
+define remove operator z
+define remove alias operator zo
+define examine command preskúmaj
+define examine alias command preskúmať
+define examine operator pomocou
+define use command použi
+define use alias command použiť
+define use operator s
+define use alias operator so
+; define use alias operator na
+define action command hovor
+define action alias command hovoriť
+define action operator pomocou
+
+
+; --- miesta ---
+
+
+build dvor
+	alias dvora
+	; tonnage 101
+	; capacity (100 + %(tonnage)) - 1
+
+	tonnage 5000
+	capacity 1000
+
+	on explore
+		; style aqua
+		; print line Visible: %(visible)
+		; style wood
+		; print line Visited: %(visited)
+
+		; if "%(name)" != "%(avatar->placement)"
+		; 	style gold
+		; 	print line Je to dvor, ktorý…
+		; 	exit
+		; end if
+
+		; if !%(visited)
+		; 	style aqua
+		; 	print line Ocitol si sa na dvore.
+		; 	exit
+		; end if
+
+		; style note
+		; print line Poznámka
+		; style gold
+		; print line Si na dvore.
+		; style teal
+		; print line Teal color text.
+	end
+
+
+build studňa
+	alias studne
+	alias studňu
+
+	capacity 200
+	tonnage 500
+
+	connect to Dvor
+		;connect tonnage 11
+
+	on enter
+		print line Vošiel si do studne.
+	end
+
+
+; --- predmety ---
+
+
+create voda v studni
+	weight 100
+	volume 100
+	location studňa
+
+
+create peňaženka
+	; weight 1.2
+	; capacity 10
+	; tonnage %(weight) * 100
+	location dvor
+	; give
+
+	on drop
+		deny To nie je dobrý nápad. Radšej si ju stráž.
+	end
+
+	on examine
+		; call trig_1
+		print block «end»
+			fdsfds
+		«end»
+	end
+
+
+create minca
+	location dvor
+
+
+; update voda v studni
+; 	volume 4
+
+
+; --- avatar ---
+
+avatar
+	tonnage 100
+	capacity 100
+	volume 100
+	weight 80
+
+	location dvor
+
+	on pick success
+		success message Zobral si predmet %(src->name).
+	end
+
+	on common examine
+		print examine %(src->name)
+	end
+
+	; on common success
+	; end
+
+	on common failure
+		print line commandType: %(cmd)
+		print line reasonType: %(rsn)
+		if "%(rsn)" == "failureTokenNotFound"
+			fail Nerozumiem…
+		end if
+	end
+
+
+define trigger xPeriment
+	public
+	define property pokus
+	set property pokus = 1
+	on invoke
+		set pokus = %(pokus) + 1
+		print line Pokus: %(pokus)
+		; print line 1: %(1)
+		; print line 2: %(2)
+		; print line 3: %(3)
+		; 
+		; print line capitalized 1: %(^1)
+		; print line capitalized 2: %(^2)
+		; print line capitalized 3: %(^3)
+		; 
+		; call váha %(1)
+	end
+
+
+define trigger váha
+	public
+	on invoke
+		style wood
+		print line %(^1) váži: %(%(1)->weight) kg
+	end
+
+
+; define trigger trig_1
+; 	public
+; 	on invoke
+; 		print line param 1: %(^1)
+; 		print line param 2: %(^2)
+; 		print line param 3: %(^3)
+; 		print line param 4: %(^4)
+; 		exit koniec
+; 
+; 		print line Váha peňaženky pred: %(peňaženka->weight) kg
+; 		set peňaženka->weight = 10
+; 		print line Váha peňaženky po: %(peňaženka->weight) kg
+; 
+; 		print block
+; 			Toto je toto.
+; 			Tuto je tuto.
+; 			Tamto je tamto.
+; 		print end
+; 		print words Slová, sú obyčajné slová 
+; 		print image default-icon-small.png
+; 		print line .
+; 
+; 		; deny Mohli sme byť aj bez toho.
+; 		success message Posledná veta.
+; 	end
+; 
+; 	context menu item Invoke
+; 		trigger Param1 Param2 Param3 Param4
+; 	end
+; 
+; 	context menu separator
+; 
+; 	context menu item Invoke 2
+; 	end
+
+
+startup
+on invoke
+	; style warning color #ffeedd
+	; style warning underline true
+	; style warning font Times New Roman
+	; style warning size 14
+
+	; style warning
+	; print line Warning style
+
+	; style warning clear
+	; style warning bold true
+
+	; style warning
+	; print line Warning style
+
+	; style gold
+	; print parameters
+
+	; print line 1: %(1)
+	; print line 2: %(2)
+	; print line 3: %(3)
+
+	; print line capitalized 1: %(^1)
+	; print line capitalized 2: %(^2)
+	; print line capitalized 3: %(^3)
+
+	; for parameters
+	; 	print line forVar: %(forVar)
+	; 	print line ^forVar: %(^forVar)
+	; end for
+
+	; print line forVar0: %(forVar0)
+	; print line forVar1: %(forVar1)
+	; print line forVar2: %(forVar2)
+	; print line forVar31: %(forVar31)
+
+	; print line ^forVar: %(^forVar)
+	; print line ^forVar0: %(^forVar0)
+	; print line ^forVar1: %(^forVar1)
+	; print line ^forVar2: %(^forVar2)
+	; print line ^forVar31: %(^forVar31)
+
+	; print line %(^peňaženka->name) je v: "%(peňaženka->placement)"
+
+	; if "%(peňaženka->placement)" == ""
+	; 	print line Condition was true.
+	; 
+	; 	if false
+	; 		print block
+	; 			This
+	; 			is
+	; 			block.
+	; 		print end
+	; 	end if
+	; 
+	; 	print line This is after block.
+	; 
+	; end if
+
+	; if "%(peňaženka->placement)" != ""
+	; 	; for x
+	; 	; end for
+	; 
+	; 	print line false
+	; end if
+
+	; print line This is after false.
+	; print line
+
+	; query Jedna otázka
+end
+
+query
+on invoke
+	if no parameters
+		style aqua
+		print there afdsô 
+	end if
+	style gold
+	print parameters
+	; print words >
+	; for parameters
+	; 	print space
+	; 	print words "%(forVar)"
+	; end for
+	; print line
+	; query Všetky ďalšie otázky
+	blah
+end
+
+populate
+on invoke
+	; clear inserted list
+	; add inserted list item minca
+	; add inserted list item trig_1
+end

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>TextDriver – brief documentation</title>
+</head>
+<body>
+
+<h1>TextDriver – brief documentation</h1>
+
+<p>The TextDriver is interactive interpreter of definitions of the text worlds. That means that the communication is performed in text mode. The world is made up of the locations and items, and the user is represented by the avatar. The items may be placed in locations, another items, or avatar’s inventory. The definition file may contain lots of triggers and handlers whose are key to the functionality of the world defined.</p>
+
+<p>The parser identifies each entity (location, item, trigger…) by its name. Each name automatically becomes the token. The user can act in the world through commands (we will sometimes call them “user commands” to distinguish them from the “scripting commands”). Each command is also the token. The common restriction is that each token must be unique and must not start with some other token. For example the definition of the location named <code>Stone Room</code> would be in conflict with the item named <code>stone</code>. This checking may be disabled, but this is not safe – there may arise ambiguous sentences.</p>
+
+
+<h2>Definition</h2>
+
+<p>The file containing definition of the world must be a text file stored in current working directory of the TextDriver application. Its name can be configured in <code>texdriver.cfg</code> that must be also stored in current working directory. The proper configuration directive is <code>worldName</code>. For example:</p>
+
+<pre>worldName=myWorld</pre>
+
+<p>The propper file extension (<code>.TextWorld</code>) is appended authomatically.</p>
+
+<p>Most of definition lines (described in this chapter) are context sensitive but voluntary. For example <code>capacity</code> may or may not be defined for avatar, location, or item. Other directives are independent and can appear as standalone. It can be said that the definition is created by independent directives and definition blocks. Each part of the definition is described in using following notation:</p>
+
+<ul>
+<li><code>«boolean»</code> – boolean (<code>true</code>/<code>false</code>);</li>
+<li><code>; </code><em>commentary</em> – lines starting with <code>;</code> are commentaries;</li>
+<li><code>«condition»</code> – any expression of the boolean resulting type;</li>
+<li><code>«container»</code> – name of container, which may be item, location or avatar;</li>
+<li><code>«command»</code>, <code>«operator»</code> – specification of the command or operator; commans and operators automatically become the tokens;</li>
+<li><code>«commands»</code> – one or several commands described in section <a href="#commands">Commands</a>;</li>
+<!-- li><code>«float»</code> – real number (floating point);</li -->
+<li><code>«filename»</code> – name of file requested in specified context;</li>
+<li><code>«formula»</code> – any expression of the real numeric (floating point) resulting type;</li>
+<li><code>«handler»</code> – identifier/name of a handler;</li>
+<li><code>«int»</code> – integer;</li>
+<li><code>«label»</code> – means that one of following user interface labels is expected here: <code>input line label</code>, <code>central text label</code>, <code>locations list label</code>, <code>items list label</code>, <code>inventory list label</code>, <code>inserted list label</code>;</li>
+<li><code>«list»</code> – means that one of following user interface lists is expected here: <code>locations list</code>, <code>items list</code>, <code>inventory list</code>, <code>inserted list</code>;</li>
+<li><code>«location»</code>, <code>«item»</code>, <code>«trigger»</code>… – name of the entity of specified type;</li>
+<li><code>«name»</code> – common name of any entity (location, item, trigger…); name automatically becomes the token;</li>
+<li><code>«placement»</code> – specification of placement, which may be item or location;</li>
+<li><code>«property»</code> – name of property (property is something like public instance variable) defined for current entity;</li>
+<li><code>«string»</code> – any string;</li>
+</ul>
+
+
+<h3>Preprocessing</h3>
+
+<p>Each line of the definition is preprocessed with focus to replacing properties, parameters, and for control variables with current values. The syntax is following:</p>
+
+<pre>%(<em>«…»</em>)</pre>
+
+<p>or with capitalized first letter:</p>
+
+<pre>%(^<em>«…»</em>)</pre>
+
+<p>The parentheses must contain a specification of property, an argument number, a specification of for control variable – <code>forVar</code>, or reserved string.</p>
+
+<p>The specification of property may be simple name of a property, or name of a container folowed by operator <code>-></code> and followed by name of a property. The name of container may be a special string: <code>src</code> – source, <code>tgt</code> – target, <code>rsc</code> – resource.</p>
+
+<p>The arguments are numbered from <code>1</code> to <code>n</code> where <code>n</code> is the count of arguments.</p>
+
+<p>The for loops may be nested. To distinguish different levels of the loop the for control variable may contain numeric postfix with the meaning of index of a level. Indexing is started from zero.</p>
+
+<p>There are two reserved strings: <code>cmd</code> – command type, <code>rsn</code> – reason type. The first one is reffering to currently executed command. The secon one is reffering to error state.</p>
+
+<p>Here are several examples:</p>
+
+<pre>
+; simple property
+print line %(weight)
+
+; properties of location lake, item cup, and avatar
+print line %(lake->volume)
+print line %(cup->capacity)
+print line %(avatar->volume)
+
+; arguments
+print line %(1)
+print line %(2)
+print line %(3)
+
+; for control variables
+print line %(forVar)
+print line %(forVar0)
+print line %(forVar1)
+</pre>
+
+
+<h3>Independent directives</h3>
+
+<p>First we show how to define commands in the meaning of “user commands”. Those commands may be entered in the command line by the user. That means that there is no another place in the source code where any of those commands may be reused.</p>
+
+<p>Each command should have also an operator defined, because commands may be entered in alternative shape: <code>«command» «name» «operator» «name»</code>, for example <code>use pencil with paper</code> where <code>use</code> is the command, <code>with</code> is the operator, and <code>pencil</code> and <code>paper</code> are the entities. The commands and the operators may have aliases defined. Here is template of definition:</p>
+
+<pre>
+define <em>«command_ID»</em> command «command»
+define <em>«command_ID»</em> alias command «command»
+define <em>«command_ID»</em> operator «operator»
+define <em>«command_ID»</em> alias operator «operator»
+</pre>
+
+<p>The <code><em>«command_ID»</em></code> is the same for the definition of the command and also for the definition of the operator for specified command. It must be one of followings: <code>walk</code>, <code>return</code>, <code>explore</code>, <code>pick</code>, <code>drop</code>, <code>throw</code>, <code>insert</code>, <code>remove</code>, <code>examine</code>, <code>use</code>, <code>action</code>.</p>
+
+<p>The behavior of most of the commands is predefined and cannot be changed, but may be extended. For example all the conditions for dropping an item must be fulfilled, but the dropping of specific items may be denied.</p>
+
+
+<p><hr /></p>
+
+<p>One command line may contain several commands separated by the <code>command line separator</code>. The default <code>command line separator</code> is comma (<code>,</code>). This separator is searched in the command line and according it the command line will be separated into single parts. Each part will be processed as single command.</p>
+
+<p>The default <code>command line separator</code> may be redefined. Following directives are alternatives for the same action:</p>
+
+<pre>
+define command line separator «string»
+redefine command line separator «string»
+</pre>
+
+
+<p><hr /></p>
+
+<pre>
+enable autopopulate
+enable autoexplore
+enable tokenStartsChecking
+
+disable autopopulate
+disable autoexplore
+disable tokenStartsChecking
+</pre>
+
+
+<h3>Definition of Location</h3>
+
+<p>Section introduced by “build” directive contains definition of the location. Starting from this point any dependent directive will be processed in context of the current location. This state will be changed by next directive starting another definition.</p>
+
+<pre>
+build «name»
+    copy «location»
+    alias «alias»
+    tonnage «formula»
+    capacity «formula»
+    conceal
+    reveal
+
+    define property «property»
+    set property «property» = «formula»
+
+    connect to «name»
+    connect tonnage «formula»
+    connect capacity «formula»
+    connect close
+    connect open
+
+    oneway to «name»
+    oneway tonnage «formula»
+    oneway capacity «formula»
+    oneway close
+    oneway open
+
+    on «handler»
+        «commands»
+    end
+    ; For details about handlers see section “<a href="#handlers_locations">Handlers for Locations</a>” (below).
+
+update «name»
+    ; Here may be the same directives as under the “build” section.
+</pre>
+
+
+<h3>Definition of Item</h3>
+
+<p>Section introduced by “create” directive contains definition of the item. Starting from this point any dependent directive will be processed in context of the current item. This state will be changed by next directive starting another definition.</p>
+
+<pre>
+create «name»
+    copy «item»
+    alias «alias»
+    tonnage «formula»
+    capacity «formula»
+    weight «formula»
+    volume «formula»
+    hide
+    show
+
+    define property «property»
+    set property «property» = «formula»
+
+    ; Alternatives for placement of items (“give” gives the item to avatar):
+    location «location»
+    inside «item»
+    give
+
+    on «handler»
+        «commands»
+    end
+    ; For details about handlers see section “<a href="#handlers_items">Handlers for Items</a>” (below).
+
+update «name»
+    ; Here may be the same directives as under the “create” section.
+</pre>
+<p>«…»</p>
+
+
+<h3>Adjustmen of Avatar’s Properties</h3>
+
+<p>«…»</p>
+
+<pre>
+avatar
+    tonnage «formula»
+    capacity «formula»
+    weight «formula»
+    volume «formula»
+    hide
+    show
+
+    define property «property»
+    set property «property» = «formula»
+
+    ; Alternatives for placement of avatar:
+    location «location»
+    inside «item»
+
+    on «handler»
+        «commands»
+    end
+    ; For details about handlers see section “<a href="#handlers_avatar">Handlers for Avatar</a>” (below).
+</pre>
+
+
+<h2>Scripting</h2>
+
+<p>«…»</p>
+
+<pre>
+redefine end keyword «string»
+</pre>
+
+
+<h3><a name="triggers"></a>Triggers</h3>
+
+<p>«…»</p>
+
+<pre>
+define trigger «name»
+    copy «trigger»
+    alias «alias»
+    public
+    private
+
+    define property «property»
+    set property «property» = «formula»
+
+    double click «trigger»
+
+    ; For details about context menu items see section “<a href="#menus">Menus</a>” (below).
+
+    on invoke
+        «commands»
+    end
+</pre>
+
+
+<h3><a name="handlers_locations"></a>Handlers for Locations</h3>
+
+<p>«…»</p>
+
+<pre>
+reveal
+conceal
+enter
+leave
+explore
+
+
+</pre>
+
+
+<h3><a name="handlers_items"></a>Handlers for Items</h3>
+
+<p>«…»</p>
+
+<pre>
+show
+hide
+pick
+drop
+throw
+insert
+admit
+remove
+release
+examine
+use
+drive
+</pre>
+
+
+<h3><a name="handlers_avatar"></a>Handlers for Avatar</h3>
+
+<p>«…»</p>
+
+<pre>
+common examine
+common success
+common failure
+walk success
+walk failure
+return success
+return failure
+explore success
+explore failure
+pick success
+pick failure
+drop success
+drop failure
+throw success
+throw failure
+insert success
+insert failure
+remove success
+remove failure
+examine success
+examine failure
+use success
+use failure
+action success
+action failure
+</pre>
+
+
+<h3>Special Handlers</h3>
+
+<p>«…»</p>
+
+<ul>
+<li><code>startup</code> – «…»</li>
+<li><code>read state</code> – «…»</li>
+<li><code>query</code> – «…»</li>
+<li><code>populate</code> – «…»</li>
+</ul>
+
+
+
+<h3><a name="styles"></a>Styles</h3>
+
+<p>«…»</p>
+
+<pre>
+style «style_ID»
+    clear
+    color «color»
+    size «int»
+    background «color»
+    font «string»
+    bold «boolean»
+    italic «boolean»
+    strike «boolean»
+    subscript «boolean»
+    superscript «boolean»
+    underline «boolean»
+end
+</pre>
+
+<p>The <code><em>«style_ID»</em></code> must be unique identifier.
+Following identifiers must be predefined by any <code>TextDriverInterface</code> implementation, because the <code>TextEngine</code> needs them and uses them:
+<code>error</code>, <code>success</code>.
+Following styles are predefined in default <code>TextDriverInterface</code> implementation and are used by this implementation:
+<code>info</code>, <code>warning</code>, <code>command</code>.
+Following styles are predefined by default <code>TextDriverInterface</code> implementation, but are not actively used by this implementation:
+<code>note</code>, <code>teal</code>, <code>aqua</code>, <code>gold</code>, <code>wood</code>, <code>description</code>.
+It is recomendet to predefine all listed styles in any <code>TextDriverInterface</code> implementation for compatibility reasons.</p>
+
+
+<h3><a name="commands"></a>Commands</h3>
+
+<p>«…»</p>
+
+<p>Redefinition(s) must be placed at the beginning of the handler/script.</p>
+
+<pre>
+redefine end if keyword «endIfKeyword»
+redefine end for keyword «endForKeyword»
+</pre>
+
+<p>«…»</p>
+
+<pre>
+exit
+exit «string»
+
+deny
+deny «string»
+
+fail
+fail «string»
+
+success message «string»
+failure message «string»
+
+query
+query «string»
+
+call «trigger»
+run «trigger» ; ignores deny command (might not be safe)
+
+; 
+
+clear title
+clear input line label
+clear central text label
+clear «list» label
+
+set title «string»
+set input line label «string»
+set central text label «string»
+set «list» label «string»
+
+; 
+
+clear «list»
+add «list» item «string»
+
+
+set «property» = «formula»
+
+; Modify styles:
+
+style «style_ID» clear
+style «style_ID» color «color»
+style «style_ID» size «int»
+style «style_ID» background «color»
+style «style_ID» font «string»
+style «style_ID» bold «boolean»
+style «style_ID» italic «boolean»
+style «style_ID» strike «boolean»
+style «style_ID» subscript «boolean»
+style «style_ID» superscript «boolean»
+style «style_ID» underline «boolean»
+
+; Output
+
+clear screen
+clear central text
+
+clear style ; next output will not be styled
+style none  ; next output will not be styled
+
+style «style_ID» ; sets style
+
+print image «imageFilename»
+print line
+print line «string»
+print words «string»
+print space
+print parameters ; for debugging purposes
+
+print block
+    «string»
+print end
+
+print block «blockEnd_ID»
+    «string»
+«blockEnd_ID»
+
+; Modify placement
+
+insert «item» «container»
+insert avatar «container»
+
+remove «item»
+remove avatar
+
+remove «item» «container»
+remove avatar «container»
+
+teleport «item» «container»
+teleport avatar «container»
+
+; Open/close transition
+
+open «souceLocation» «targetLocation»
+close «souceLocation» «targetLocation»
+
+; Visibility
+
+show «list»
+show item «item»
+show entity «item»
+show avatar
+
+reveal location «location»
+
+hide «list»
+hide item «item»
+hide entity «item»
+hide avatar
+
+conceal location «location»
+
+
+if no parameters
+if [not] here [«item»]
+if [not] have [«item»]
+if avatar [not] in [«placement»]
+if [not] visited [«location»]
+if visible [«placement»]
+if hidden [«placement»]
+if «condition»
+    «commands»
+«endIfKeyword»
+
+for parameters
+for [revealed|concealed] locations
+for [revealed|concealed] locations connected «location»
+for [revealed|concealed] locations isolated «location»
+for [revealed|concealed] destinations
+for [revealed|concealed] destinations connected «location»
+for [revealed|concealed] destinations isolated «location»
+for [visible|hidden] items
+for [visible|hidden] present items
+for [visible|hidden] inventory items
+for [visible|hidden] items placed «location»
+for [visible|hidden] items inside «item»
+    «commands»
+«endForKeyword»
+
+
+</pre>
+
+
+<h2><a name="interface"></a>Customizing User Interface Components</h2>
+
+<p>«…»</p>
+
+
+<h3><a name="menus"></a>Menus</h3>
+
+<p>«…»</p>
+
+<pre>
+main menu clear
+clear main menu
+
+menu item [«string»]
+    text «string»
+    mnemonic <em>«key_ID»</em>
+    accelerator <em>«key_ID»</em>
+    icon «filename»
+    trigger «trigger»
+end
+
+menu separator
+
+main menu item [«string»]
+    ; Here may be the same directives as inside the “menu item” structure,
+    ; but only the “text” and “mnemonic” directives will be processed.
+end
+
+; Context menu items may be defined only for public <a href="#triggers">triggers</a>.
+
+context menu item [«string»]
+    ; Here may be the same directives as inside the “menu item” structure.
+end
+
+context menu separator
+
+</pre>
+
+<p>The <code><em>«key_ID»</em></code> is ID (string in exact form) that identifies the specific key. Mnemonic is shortcut for accelerating the activation of the menu items by keyboard. Mnemonic may be highlighted by underlined characters in texts of items. Accelerator is application wide keyboard shortcut combined with the <code>Control (Ctrl)</code> or <code>Command (⌘)</code> key (which depends on the platform). The <code><em>«key_ID»</em></code> should be in range <code>VK_A</code> – <code>VK_Z</code> (see: <a href="https://docs.oracle.com/javase/8/docs/api/java/awt/event/KeyEvent.html#field.summary" target="_blank">Java Platform SE 7 – KeyEvent – Field Summary</a>).</p>
+
+<!--
+http://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html#field_summary
+-->
+
+<p>«…»</p>
+
+<pre>
+add default menu item open
+add default menu item save
+add default menu item exit
+add default menu item about
+</pre>
+
+
+<p><hr /></p>
+
+<p>«…»</p>
+
+<pre>
+set title «string»
+set input line label «string»
+set central text label «string»
+set «list» label «string»
+
+clear title
+clear input line label
+clear central text label
+clear «list» label
+
+clear input line
+clear central text
+clear screen
+clear «list»
+
+show «list»
+hide «list»
+</pre>
+
+
+</body>
+</html>

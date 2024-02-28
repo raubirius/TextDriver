@@ -1,0 +1,32 @@
+
+Location: dvor
+    Visited: true
+
+Transition: dvor
+Target: studňa
+
+Location: studňa
+
+Transition: studňa
+Target: dvor
+
+Item: voda v studni
+
+Item: peňaženka
+
+Item: minca
+
+Trigger: xPeriment
+    pokus: 2.0
+
+Trigger: váha
+
+Startup Script
+
+Read State Script
+
+Query Script
+
+Populate Script
+
+Avatar: Avatar

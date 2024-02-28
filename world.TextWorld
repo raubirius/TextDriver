@@ -1,0 +1,94 @@
+; world.def
+; disable tokenStartsChecking
+
+set title Na dvore…
+set input line label Príkaz:
+set central text label Dej:
+set locations list label Dostupné miesta:
+set items list label Viditeľné objekty:
+set inventory list label Inventár:
+set inserted list label Vložené položky:
+
+define walk command choď
+define walk alias command ísť
+define walk operator pomocou
+define return command vráť sa
+define return alias command vrátiť sa
+define return operator pomocou
+define explore command prezri
+define explore alias command prezrieť
+define explore operator pomocou
+define pick command zober
+define pick alias command zobrať
+define pick operator pomocou
+define drop command polož
+define drop alias command položiť
+define drop operator pomocou
+define throw command hoď
+define throw alias command hodiť
+define throw operator do
+define throw alias operator na
+define insert command vlož
+define insert alias command vložiť
+define insert operator do
+define remove command vyber
+define remove alias command vybrať
+define remove operator z
+define remove alias operator zo
+define examine command preskúmaj
+define examine alias command preskúmať
+define examine operator pomocou
+define use command použi
+define use alias command použiť
+define use operator s
+define use alias operator so
+; define use alias operator na
+define action command hovor
+define action alias command hovoriť
+define action operator pomocou
+
+style description
+	bold true
+end
+
+build dvor
+	on explore
+		style description
+		print line Dvor pred chalupou.
+	end
+
+build chalupa
+	connect to dvor
+	on enter
+		teleport avatar predsieň
+	end
+	on explore
+		print line Chalupa s dvorom.
+	end
+
+build predsieň
+	oneway to dvor
+	on explore
+		print line Predsieň v chalupe so vstupom do chodby.
+	end
+
+build kuchyňa
+	on explore
+		print line Kuchyňa so vstupom do chodby.
+	end
+
+build chodba
+	connect to predsieň
+	connect to kuchyňa
+	on explore
+		print line Chodba, ktorá spája všetky miestnosti v chalupe.
+	end
+
+create kameň
+	location dvor
+	on examine
+		print line Malý kameň
+	end
+
+avatar
+	location dvor

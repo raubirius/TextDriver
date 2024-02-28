@@ -1,0 +1,112 @@
+
+		/* TESTS * /
+		new MenuItem("Test").insertToMainMenu();
+		insertSeparator();
+		new MenuItem("Test 2").insertToMainMenu();
+		/**/
+
+
+		/* TESTS * /
+		final Vector<Entity> v = new Vector<Entity>();
+		put(v, new Entity("Alfa"));
+		put(v, new Entity("Beta"));
+		put(v, new Entity("Gamma"));
+		put(v, new Entity("Delta"));
+		/**/
+
+
+		/* TESTS * /
+		locationsList.model.addElement("bbb");
+		locationsList.model.addElement("aaa");
+		/**/
+
+
+		/* TESTS * /
+		itemsList.model.addElement("ccc");
+		itemsList.model.addElement("ddd");
+		Location loc = new Location("Shop");
+		writeLine("Question: equals ", loc, " and shop?");
+		writeLine("Answer: ", loc.equals("shop"), ".");
+		/**/
+
+
+		/* TESTS * /
+		setStyle(commandStyle);
+		writeLine("command entered");
+		setStyle(successStyle);
+		writeLine(currentLanguage.defaultSuccess);
+		writeLine();
+
+		setStyle(commandStyle);
+		writeLine("command entered");
+		setStyle(errorStyle);
+		writeLine(currentLanguage.defaultFailure);
+		writeLine();
+
+		setStyle(errorStyle);
+		writeLine("Test: ", buildMessage(currentLanguage.
+			errorImageNotFound, "test.txt"));
+		/**/
+
+
+		/* TESTS * /
+		Item item = new Item("item");
+		Item item2 = new Item("item2");
+		Location container = new Location("container");
+		System.out.println(item + " copy " + container);
+		item.copy(container);
+		System.out.println(container + " copy " + item);
+		container.copy(item);
+		System.out.println(item + " copy " + item2);
+		item.copy(item2);
+		/**/
+
+
+	// Entities with long names should be placed first!
+	public static int whereToPut(Vector vector, Object object)
+	{
+		if (vector.size() == 0) return 0;
+
+		int left = 0;
+		int right = vector.size() - 1;
+		int length1 = object.toString().length();
+
+		while (left <= right)
+		{
+			int middle = (right + left) / 2;
+			int length2 = vector.elementAt(middle).toString().length();
+
+			if (length2 > length1)
+				left = middle + 1;
+			else if (length2 < length1)
+				right = middle - 1;
+			else
+				return middle;
+		}
+
+		return left > 0 ? left : 0;
+	}
+
+
+		/* TESTY * /
+		addToken("Roman");
+		addToken("Marek");
+		addToken("Adrika");
+		addToken("Svetlanka");
+		addToken("Roman Marek");
+		for (Entity e : tokens) System.out.println("> " + e);
+		/**/
+
+
+	/* TESTS * /
+	private void put(Vector<Entity> v, Entity e)
+	{
+		int i = TextEngine.whereToPut(v, e);
+		writeLine("Put ", e," to: ", i);
+		v.insertElementAt(e, i);
+		list(v);
+	}
+
+	private void list(Vector v)
+	{ for (Object o : v) writeLine("> " + o); }
+	/**/
